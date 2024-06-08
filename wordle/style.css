@@ -93,3 +93,10 @@ button {
     background-color: gray;
     color: white;
 }
+
+.centered-paragraph {
+    max-width: 400px; /* Adjust this value to your desired width */
+    margin: 0 auto; /* Centers the element horizontally */
+    text-align: left; /* Optional: centers the text inside the paragraph */
+    color: grey;
+}
