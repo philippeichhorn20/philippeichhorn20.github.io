@@ -138,7 +138,7 @@ function updateKeyboard(letter, status) {
 
 function createKeyboard() {
     const keyboardContainer = document.getElementById('keyboard');
-    const letters = 'abcdefghijklmnopqrstuvwxyz';
+    const letters = 'qwertzuiopüasdfghjklöäyxcvbnm';
 
     for (let i = 0; i < letters.length; i++) {
         const key = document.createElement('div');
@@ -151,7 +151,7 @@ function createKeyboard() {
 
 function handleKeyPress(event) {
     const key = event.key.toLowerCase();
-    if (/^[a-z]$/.test(key) && currentTileIndex < wordLength) {
+    if (/^[a-züäö]$/.test(key) && currentTileIndex < wordLength) {
         const row = document.getElementsByClassName('grid-row')[currentAttempt];
         const tile = row.getElementsByClassName('tile')[currentTileIndex];
         tile.textContent = key;
@@ -175,6 +175,8 @@ function endGame() {
 
 function checkWordInFile(word) {
     // Send an AJAX request to load the file content
+    return true
+    wordFound = false
     const xhr = new XMLHttpRequest();
     xhr.open('GET', 'sorted_words.txt', true);
     xhr.onreadystatechange = function () {
@@ -185,7 +187,7 @@ function checkWordInFile(word) {
                 const sortedWords = fileContent.split('\n');
 
                 // Perform a linear search to check if the word exists
-                const wordFound = sortedWords.includes(word);
+                wordFound = sortedWords.includes(word);
                 console.log(`The word '${word}' is ${wordFound ? 'found' : 'not found'} in the file.`);
             } else {
                 console.error('Failed to load file.');
@@ -193,4 +195,5 @@ function checkWordInFile(word) {
         }
     };
     xhr.send();
+    return wordFound
 }

@@ -46,7 +46,7 @@ body {
 }
 
 .tile.present {
-    background-color: yellow;
+    background-color: rgb(244, 244, 53);
 }
 
 .tile.absent {
@@ -63,7 +63,7 @@ button {
 #keyboard {
     display: grid;
     gap: 5px;
-    grid-template-columns: repeat(10, 1fr);
+    grid-template-columns: repeat(11, 1fr);
     justify-content: center; /* Center the keyboard contents */
     margin-top: 20px;
 }
@@ -86,7 +86,7 @@ button {
 }
 
 .key.present {
-    background-color: yellow;
+    background-color: rgb(244, 244, 53);
 }
 
 .key.absent {
