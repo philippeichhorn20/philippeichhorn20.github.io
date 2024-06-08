@@ -145,12 +145,29 @@ function createKeyboard() {
         key.className = 'key';
         key.id = `key-${letters[i]}`;
         key.textContent = letters[i];
+         // Add click event listener
+        key.addEventListener('click', () => {
+            handleKey(key.textContent);
+        });
         keyboardContainer.appendChild(key);
     }
+    const key = document.createElement('div');
+    key.className = 'enter';
+    key.id = `enter`;
+    key.textContent = 'enter';
+     // Add click event listener
+    key.addEventListener('click', () => {
+        handleKey(key.textContent);
+    });
+    keyboardContainer.appendChild(key);
 }
 
 function handleKeyPress(event) {
     const key = event.key.toLowerCase();
+    handleKey(key);
+}
+
+function handleKey(key){
     if (/^[a-züäö]$/.test(key) && currentTileIndex < wordLength) {
         const row = document.getElementsByClassName('grid-row')[currentAttempt];
         const tile = row.getElementsByClassName('tile')[currentTileIndex];
