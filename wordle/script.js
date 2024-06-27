@@ -1,6 +1,11 @@
 // script.js
-document.addEventListener('DOMContentLoaded', startGame);
+require("sorted_words.txt")
+
+document.addEventListener('DOMContentLoaded', () => {
+    loadWordList().then(startGame);
+});
 document.addEventListener('keydown', handleKeyPress);
+
 
 wordLength = 5;
 const maxAttempts = 5;
@@ -91,16 +96,17 @@ function generateSecretWord() {
 
 function submitGuess() {
     if (currentGuess.length !== wordLength) {
-        alert('Guess length must be 5 letters.');
+        alert('Guess length must be ' + wordLength + ' letters.');
         return;
-    }if(!checkWordInFile(currentGuess)){
+    }
+
+    if (!checkWordInFile(currentGuess)) {
         alert('Ist kein wort');
         return;
     }
 
     const row = document.getElementsByClassName('grid-row')[currentAttempt];
     const tiles = row.getElementsByClassName('tile');
-    const keyboardKeys = document.getElementsByClassName('key');
 
     for (let i = 0; i < currentGuess.length; i++) {
         tiles[i].textContent = currentGuess[i];
@@ -117,9 +123,6 @@ function submitGuess() {
     }
 
     currentAttempt++;
-    currentGuess = '';
-    currentTileIndex = 0;
-
     if (currentGuess === secretWord) {
         alert('Congratulations! You guessed the word!');
         endGame();
@@ -127,7 +130,11 @@ function submitGuess() {
         alert(`Game over! The word was: ${secretWord}`);
         endGame();
     }
+
+    currentGuess = '';
+    currentTileIndex = 0;
 }
+
 
 function updateKeyboard(letter, status) {
     const key = document.getElementById(`key-${letter}`);
@@ -191,26 +198,19 @@ function endGame() {
 }
 
 function checkWordInFile(word) {
-    // Send an AJAX request to load the file content
-    return true
-    wordFound = false
-    const xhr = new XMLHttpRequest();
-    xhr.open('GET', 'sorted_words.txt', true);
-    xhr.onreadystatechange = function () {
-        if (xhr.readyState === XMLHttpRequest.DONE) {
-            if (xhr.status === 200) {
-                // File content loaded successfully
-                const fileContent = xhr.responseText;
-                const sortedWords = fileContent.split('\n');
+    return sortedWords.includes(word.toLowerCase());
+}
 
-                // Perform a linear search to check if the word exists
-                wordFound = sortedWords.includes(word);
-                console.log(`The word '${word}' is ${wordFound ? 'found' : 'not found'} in the file.`);
-            } else {
-                console.error('Failed to load file.');
-            }
-        }
-    };
-    xhr.send();
-    return wordFound
+
+let sortedWords = [];
+
+function loadWordList() {
+    return fetch('sorted_words.txt')
+        .then(response => response.text())
+        .then(text => {
+            sortedWords = text.split('\n').map(word => word.trim().toLowerCase());
+        })
+        .catch(error => {
+            console.error('Error loading word list:', error);
+        });
 }
