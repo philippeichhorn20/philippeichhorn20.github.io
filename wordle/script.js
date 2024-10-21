@@ -197,20 +197,24 @@ function endGame() {
 }
 
 function checkWordInFile(word) {
-    return true;
-    return sortedWords.includes(word.toLowerCase());
+    loadWordList().then(() => {
+        const isInFile = sortedWords.includes(word.toLowerCase());// Output: true/false
+        return isInFile;
+    });
+    return false;
 }
 
 
 let sortedWords = [];
 
 function loadWordList() {
-    return fetch('sorted_words.txt')
-        .then(response => response.text())
-        .then(text => {
-            sortedWords = text.split('\n').map(word => word.trim().toLowerCase());
+    return fetch('words.json')  // Fetching the JSON file
+        .then(response => response.json())  // Parse it as JSON
+        .then(data => {
+            sortedWords = data.map(word => word.toLowerCase());  // Store and lowercase words
         })
         .catch(error => {
             console.error('Error loading word list:', error);
         });
+        console.log(sortedWords)
 }
