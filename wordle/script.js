@@ -1,8 +1,9 @@
 // script.js
-import wordList from './words.js';  // './' is necessary for relative imports
+import {wordList} from './words.js';  // './' is necessary for relative imports
 
 document.addEventListener('DOMContentLoaded', () => {
-    loadWordList().then(startGame);
+    loadWordList();
+    startGame();
 });
 document.addEventListener('keydown', handleKeyPress);
 
@@ -35,62 +36,17 @@ function startGame() {
         document.getElementById('game-board').appendChild(row);
     }
 
-    document.getElementById('submit-guess').disabled = false;
+    // document.getElementById('submit-guess').disabled = false;
 }
 
 function generateSecretWord() {
     const words = [
-        'Apfel',
-        'Banane',
-        'Kartoffel',
-        'Tomate',
-        'Gurke',
-        'Tisch',
-        'Stuhl',
-        'Fenster',
-        'Tür',
-        'Hund',
-        'Katze',
-        'Maus',
-        'Elefant',
-        'Löwe',
-        'Tiger',
-        'Fisch',
-        'Vogel',
-        'Fliege',
-        'Schlange',
-        'Spinne',
-        'Biene',
-        'Wolke',
-        'Sonne',
-        'Regen',
-        'rennen',
-        'springen',
-        'spielen',
-        'tanzen',
-        'fliegen',
-        'schwimmen',
-        'kochen',
-        'lachen',
-        'weinen',
-        'trinken',
-        'essen',
-        'fröhlich',
-        'traurig',
-        'glücklich',
-        'müde',
-        'schnell',
-        'langsam',
-        'hell',
-        'dunkel',
-        'groß',
-        'klein',
-        'dick',
-        'dünn',
         'schön',
-        'hässlich'
-    ];    word = words[Math.floor(Math.random() * words.length)];
+        'Sonne'
+    ];    
+    let word = words[Math.floor(Math.random() * words.length)];
     wordLength = word.length;
+    word = word.toLowerCase()
     return word;
 }
 
@@ -108,26 +64,44 @@ function submitGuess() {
     const row = document.getElementsByClassName('grid-row')[currentAttempt];
     const tiles = row.getElementsByClassName('tile');
 
+    let secretWordCopy = secretWord.split('');  // Copy of secret word to mark used letters
+    let guessStatus = Array(currentGuess.length).fill('');  // Status for each letter in the guess
+
+    // First pass: Mark correct letters
     for (let i = 0; i < currentGuess.length; i++) {
         tiles[i].textContent = currentGuess[i];
         if (currentGuess[i] === secretWord[i]) {
             tiles[i].classList.add('correct');
             updateKeyboard(currentGuess[i], 'correct');
-        } else if (secretWord.includes(currentGuess[i])) {
-            tiles[i].classList.add('present');
-            updateKeyboard(currentGuess[i], 'present');
-        } else {
-            tiles[i].classList.add('absent');
-            updateKeyboard(currentGuess[i], 'absent');
+            guessStatus[i] = 'correct';
+            secretWordCopy[i] = null;  // Mark this letter as "used"
         }
     }
 
+    // Second pass: Mark present and absent letters
+    for (let i = 0; i < currentGuess.length; i++) {
+        if (guessStatus[i] === '') {  // Skip already correct letters
+            if (secretWordCopy.includes(currentGuess[i])) {
+                tiles[i].classList.add('present');
+                updateKeyboard(currentGuess[i], 'present');
+                guessStatus[i] = 'present';
+
+                // Mark the first occurrence of this letter as used
+                secretWordCopy[secretWordCopy.indexOf(currentGuess[i])] = null;
+            } else {
+                tiles[i].classList.add('absent');
+                updateKeyboard(currentGuess[i], 'absent');
+                guessStatus[i] = 'absent';
+            }
+        }
+    }
+
+
     currentAttempt++;
     if (currentGuess === secretWord) {
-        alert('Congratulations! You guessed the word!');
         endGame();
     } else if (currentAttempt === maxAttempts) {
-        alert(`Game over! The word was: ${secretWord}`);
+        alert(`Game over! Das Wort war: ${secretWord}`);
         endGame();
     }
 
@@ -193,13 +167,12 @@ function handleKey(key){
 }
 
 function endGame() {
-    document.getElementById('submit-guess').disabled = true;
+    // document.getElementById('submit-guess').disabled = true;
     document.removeEventListener('keydown', handleKeyPress);
 }
 
 function checkWordInFile(word) {
     console.log("checking word:", word)
-    loadWordList()
     const isInFile = sortedWords.includes(word.toLowerCase());// Output: true/false
     console.log("checking result:", isInFile)
     return isInFile;
@@ -209,5 +182,5 @@ function checkWordInFile(word) {
 let sortedWords = [];
 
 function loadWordList() {
-    sortedWords= wordList.words;
+    sortedWords = wordList.words.map(word => word.toLowerCase());
 }
