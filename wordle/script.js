@@ -1,4 +1,5 @@
 // script.js
+import wordList from './words.js';  // './' is necessary for relative imports
 
 document.addEventListener('DOMContentLoaded', () => {
     loadWordList().then(startGame);
@@ -6,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
 document.addEventListener('keydown', handleKeyPress);
 
 
-wordLength = 5;
+let wordLength = 5;
 const maxAttempts = 5;
 let secretWord = '';
 let currentAttempt = 0;
@@ -197,24 +198,16 @@ function endGame() {
 }
 
 function checkWordInFile(word) {
-    loadWordList().then(() => {
-        const isInFile = sortedWords.includes(word.toLowerCase());// Output: true/false
-        return isInFile;
-    });
-    return false;
+    console.log("checking word:", word)
+    loadWordList()
+    const isInFile = sortedWords.includes(word.toLowerCase());// Output: true/false
+    console.log("checking result:", isInFile)
+    return isInFile;
 }
 
 
 let sortedWords = [];
 
 function loadWordList() {
-    return fetch('words.json')  // Fetching the JSON file
-        .then(response => response.json())  // Parse it as JSON
-        .then(data => {
-            sortedWords = data.map(word => word.toLowerCase());  // Store and lowercase words
-        })
-        .catch(error => {
-            console.error('Error loading word list:', error);
-        });
-        console.log(sortedWords)
+    sortedWords= wordList.words;
 }
