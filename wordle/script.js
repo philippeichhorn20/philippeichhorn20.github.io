@@ -40,7 +40,7 @@ function startGame() {
 
 function generateSecretWord() {
     // Filter the sortedWords to include only words that are 9 letters or fewer
-    const validWords = sortedWords.filter(word => word.length <= 9);
+    const validWords = sortedWords.filter(word => word.length <= 7);
     
     // Select a random word from the validWords array
     let word = validWords[Math.floor(Math.random() * validWords.length)];
