@@ -5,8 +5,8 @@ document.addEventListener('DOMContentLoaded', () => {
     loadWordList();
     startGame();
 });
-document.addEventListener('keydown', handleKeyPress);
 
+document.addEventListener('keydown', handleKeyPress);
 
 let wordLength = 5;
 const maxAttempts = 5;
@@ -35,20 +35,22 @@ function startGame() {
         }
         document.getElementById('game-board').appendChild(row);
     }
-
     // document.getElementById('submit-guess').disabled = false;
 }
 
 function generateSecretWord() {
-    const words = [
-        'schön',
-        'Sonne'
-    ];    
-    let word = words[Math.floor(Math.random() * words.length)];
+    // Filter the sortedWords to include only words that are 9 letters or fewer
+    const validWords = sortedWords.filter(word => word.length <= 9);
+    
+    // Select a random word from the validWords array
+    let word = validWords[Math.floor(Math.random() * validWords.length)];
+    
     wordLength = word.length;
-    word = word.toLowerCase()
+    word = word.toLowerCase();
+    
     return word;
 }
+
 
 function submitGuess() {
     if (currentGuess.length !== wordLength) {
@@ -57,7 +59,7 @@ function submitGuess() {
     }
 
     if (!checkWordInFile(currentGuess)) {
-        alert('Ist kein wort');
+        alert(''+currentGuess+' ist kein wort');
         return;
     }
 
@@ -96,7 +98,6 @@ function submitGuess() {
         }
     }
 
-
     currentAttempt++;
     if (currentGuess === secretWord) {
         endGame();
@@ -104,7 +105,6 @@ function submitGuess() {
         alert(`Game over! Das Wort war: ${secretWord}`);
         endGame();
     }
-
     currentGuess = '';
     currentTileIndex = 0;
 }
