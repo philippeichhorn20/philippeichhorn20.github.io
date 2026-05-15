@@ -1,13 +1,14 @@
 // script.js
-require("sorted_words.txt")
+import {wordList} from './words.js';  // './' is necessary for relative imports
 
 document.addEventListener('DOMContentLoaded', () => {
-    loadWordList().then(startGame);
+    loadWordList();
+    startGame();
 });
+
 document.addEventListener('keydown', handleKeyPress);
 
-
-wordLength = 5;
+let wordLength = 5;
 const maxAttempts = 5;
 let secretWord = '';
 let currentAttempt = 0;
@@ -34,65 +35,22 @@ function startGame() {
         }
         document.getElementById('game-board').appendChild(row);
     }
-
-    document.getElementById('submit-guess').disabled = false;
+    // document.getElementById('submit-guess').disabled = false;
 }
 
 function generateSecretWord() {
-    const words = [
-        'Apfel',
-        'Banane',
-        'Kartoffel',
-        'Tomate',
-        'Gurke',
-        'Tisch',
-        'Stuhl',
-        'Fenster',
-        'Tür',
-        'Hund',
-        'Katze',
-        'Maus',
-        'Elefant',
-        'Löwe',
-        'Tiger',
-        'Fisch',
-        'Vogel',
-        'Fliege',
-        'Schlange',
-        'Spinne',
-        'Biene',
-        'Wolke',
-        'Sonne',
-        'Regen',
-        'rennen',
-        'springen',
-        'spielen',
-        'tanzen',
-        'fliegen',
-        'schwimmen',
-        'kochen',
-        'lachen',
-        'weinen',
-        'trinken',
-        'essen',
-        'fröhlich',
-        'traurig',
-        'glücklich',
-        'müde',
-        'schnell',
-        'langsam',
-        'hell',
-        'dunkel',
-        'groß',
-        'klein',
-        'dick',
-        'dünn',
-        'schön',
-        'hässlich'
-    ];    word = words[Math.floor(Math.random() * words.length)];
+    // Filter the sortedWords to include only words that are 9 letters or fewer
+    const validWords = sortedWords.filter(word => word.length <= 7);
+    
+    // Select a random word from the validWords array
+    let word = validWords[Math.floor(Math.random() * validWords.length)];
+    
     wordLength = word.length;
+    word = word.toLowerCase();
+    
     return word;
 }
+
 
 function submitGuess() {
     if (currentGuess.length !== wordLength) {
@@ -101,36 +59,52 @@ function submitGuess() {
     }
 
     if (!checkWordInFile(currentGuess)) {
-        alert('Ist kein wort');
+        alert(''+currentGuess+' ist kein wort');
         return;
     }
 
     const row = document.getElementsByClassName('grid-row')[currentAttempt];
     const tiles = row.getElementsByClassName('tile');
 
+    let secretWordCopy = secretWord.split('');  // Copy of secret word to mark used letters
+    let guessStatus = Array(currentGuess.length).fill('');  // Status for each letter in the guess
+
+    // First pass: Mark correct letters
     for (let i = 0; i < currentGuess.length; i++) {
         tiles[i].textContent = currentGuess[i];
         if (currentGuess[i] === secretWord[i]) {
             tiles[i].classList.add('correct');
             updateKeyboard(currentGuess[i], 'correct');
-        } else if (secretWord.includes(currentGuess[i])) {
-            tiles[i].classList.add('present');
-            updateKeyboard(currentGuess[i], 'present');
-        } else {
-            tiles[i].classList.add('absent');
-            updateKeyboard(currentGuess[i], 'absent');
+            guessStatus[i] = 'correct';
+            secretWordCopy[i] = null;  // Mark this letter as "used"
+        }
+    }
+
+    // Second pass: Mark present and absent letters
+    for (let i = 0; i < currentGuess.length; i++) {
+        if (guessStatus[i] === '') {  // Skip already correct letters
+            if (secretWordCopy.includes(currentGuess[i])) {
+                tiles[i].classList.add('present');
+                updateKeyboard(currentGuess[i], 'present');
+                guessStatus[i] = 'present';
+
+                // Mark the first occurrence of this letter as used
+                secretWordCopy[secretWordCopy.indexOf(currentGuess[i])] = null;
+            } else {
+                tiles[i].classList.add('absent');
+                updateKeyboard(currentGuess[i], 'absent');
+                guessStatus[i] = 'absent';
+            }
         }
     }
 
     currentAttempt++;
     if (currentGuess === secretWord) {
-        alert('Congratulations! You guessed the word!');
         endGame();
     } else if (currentAttempt === maxAttempts) {
-        alert(`Game over! The word was: ${secretWord}`);
+        alert(`Game over! Das Wort war: ${secretWord}`);
         endGame();
     }
-
     currentGuess = '';
     currentTileIndex = 0;
 }
@@ -193,24 +167,20 @@ function handleKey(key){
 }
 
 function endGame() {
-    document.getElementById('submit-guess').disabled = true;
+    // document.getElementById('submit-guess').disabled = true;
     document.removeEventListener('keydown', handleKeyPress);
 }
 
 function checkWordInFile(word) {
-    return sortedWords.includes(word.toLowerCase());
+    console.log("checking word:", word)
+    const isInFile = sortedWords.includes(word.toLowerCase());// Output: true/false
+    console.log("checking result:", isInFile)
+    return isInFile;
 }
 
 
 let sortedWords = [];
 
 function loadWordList() {
-    return fetch('sorted_words.txt')
-        .then(response => response.text())
-        .then(text => {
-            sortedWords = text.split('\n').map(word => word.trim().toLowerCase());
-        })
-        .catch(error => {
-            console.error('Error loading word list:', error);
-        });
+    sortedWords = wordList.words.map(word => word.toLowerCase());
 }
